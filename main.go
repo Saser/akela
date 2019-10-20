@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	logger := log.New(os.Stderr, "[akela] ", log.Ldate|log.Ltime|log.Lshortfile)
+	logger := log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lshortfile)
 	logger.Println("Hello, world!")
 }
