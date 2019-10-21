@@ -7,6 +7,8 @@ import (
 	"os/signal"
 
 	"github.com/BurntSushi/xgbutil"
+	"github.com/BurntSushi/xgbutil/xevent"
+	"golang.org/x/sync/errgroup"
 )
 
 func withCancelOnInterrupt(ctx context.Context) (context.Context, context.CancelFunc) {
@@ -25,15 +27,58 @@ func main() {
 
 	// Set up a connection to the X server.
 	logger.Println("setting up connection to X server")
-	_, err := xgbutil.NewConn()
+	xu, err := xgbutil.NewConn()
 	if err != nil {
 		logger.Fatalf("setting up connection to X server failed: %+v", err)
 	}
 	logger.Println("set up connection to X server")
 
+	// Create a `Watcher`.
+	logger.Println("creating watcher")
+	watcher := NewWatcher(logger, xu)
+	logger.Println("created watcher")
+
+	// Set up an errgroup with a derived context that is cancelled when an
+	// interrupt is received or when one errgroup task returns a non-nil error.
 	ctx, cancel := withCancelOnInterrupt(context.Background())
 	defer cancel()
-	logger.Println("waiting for interrupt")
+	g, ctx := errgroup.WithContext(ctx)
+
+	// Run the watcher in the errgroup.
+	g.Go(func() error {
+		logger.Println("starting watcher")
+		if err := watcher.Start(); err != nil {
+			return err
+		}
+		logger.Println("watcher finished")
+		return nil
+	})
+	cleanupWatcher := func() {
+		logger.Println("stopping watcher")
+		watcher.Stop()
+		logger.Println("stopped watcher")
+	}
+
+	// Run the X event loop in the errgroup.
+	g.Go(func() error {
+		logger.Println("starting event loop")
+		xevent.Main(xu)
+		logger.Println("event loop finished")
+		return nil
+	})
+	cleanupEventLoop := func() {
+		logger.Println("stopping event loop")
+		xevent.Quit(xu)
+		logger.Println("stopped event loop")
+	}
+
+	logger.Println("waiting for context cancellation")
 	<-ctx.Done()
-	logger.Println("interrupted, goodbye")
+	logger.Println("context cancelled")
+	cleanupEventLoop()
+	cleanupWatcher()
+	if err := g.Wait(); err != nil {
+		logger.Fatalf("error in errgroup: %+v", err)
+	}
+	logger.Println("goodbye")
 }
