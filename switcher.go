@@ -41,7 +41,7 @@ loop:
 			s.logger.Printf("getting class of window %d", window)
 			wmClass, err := icccm.WmClassGet(s.xu, window)
 			if err != nil {
-				s.logger.Printf("getting class of window %d failed: %+v", err)
+				s.logger.Printf("getting class of window %d failed: %+v", window, err)
 				continue
 			}
 			s.logger.Printf("got class of window %d: %+v", window, wmClass)
