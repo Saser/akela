@@ -28,6 +28,24 @@ func NewWatcher(
 	}
 }
 
+func (w *Watcher) focusInFun(xu *xgbutil.XUtil, e xevent.FocusInEvent) {
+	w.logger.Printf("FocusIn: %+v", e)
+}
+
+func (w *Watcher) watch(window xproto.Window) {
+	w.logger.Printf("adding callback for FocusIn events on window %d", window)
+	xwindow.New(w.xu, window).Listen(xproto.EventMaskFocusChange)
+	xevent.FocusInFun(w.focusInFun).Connect(w.xu, window)
+	w.logger.Printf("added callback for FocusIn events on window %d", window)
+}
+
+func (w *Watcher) unwatch(window xproto.Window) {
+	w.logger.Printf("detaching all callbacks on window %d", window)
+	xwindow.New(w.xu, window).Listen(xproto.EventMaskNoEvent)
+	xevent.Detach(w.xu, window)
+	w.logger.Printf("detached all callbacks on window %d", window)
+}
+
 func (w *Watcher) Start() error {
 	// Set up callbacks for window creation and destruction events noticed by
 	// the root window.
@@ -36,10 +54,10 @@ func (w *Watcher) Start() error {
 	root.Listen(xproto.EventMaskSubstructureNotify)
 	w.logger.Println("adding callbacks for CreateNotify and DestroyNotify events on root window")
 	xevent.CreateNotifyFun(func(xu *xgbutil.XUtil, e xevent.CreateNotifyEvent) {
-		w.logger.Printf("CreateNotify: %+v", e)
+		w.watch(e.Window)
 	}).Connect(w.xu, root.Id)
 	xevent.DestroyNotifyFun(func(xu *xgbutil.XUtil, e xevent.DestroyNotifyEvent) {
-		w.logger.Printf("DestroyNotify: %+v", e)
+		w.unwatch(e.Window)
 	}).Connect(w.xu, root.Id)
 	defer func() {
 		w.logger.Println("detaching all callbacks on root window")
