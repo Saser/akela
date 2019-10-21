@@ -26,6 +26,8 @@ func NewWatcher(
 		logger: logger,
 		xu:     xu,
 
+		focused: make(chan xproto.Window),
+
 		done: make(chan struct{}, 1),
 	}
 }
