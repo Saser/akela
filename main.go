@@ -38,6 +38,11 @@ func main() {
 	watcher := NewWatcher(logger, xu)
 	logger.Println("created watcher")
 
+	// Create a `Switcher`.
+	logger.Println("creating switcher")
+	switcher := NewSwitcher(logger)
+	logger.Println("created switcher")
+
 	// Set up an errgroup with a derived context that is cancelled when an
 	// interrupt is received or when one errgroup task returns a non-nil error.
 	ctx, cancel := withCancelOnInterrupt(context.Background())
@@ -59,6 +64,21 @@ func main() {
 		logger.Println("stopped watcher")
 	}
 
+	// Run the switcher in the errgroup.
+	g.Go(func() error {
+		logger.Println("starting switcher")
+		if err := switcher.Start(); err != nil {
+			return err
+		}
+		logger.Println("switcher finished")
+		return nil
+	})
+	cleanupSwitcher := func() {
+		logger.Println("stopping switcher")
+		switcher.Stop()
+		logger.Println("stopped switcher")
+	}
+
 	// Run the X event loop in the errgroup.
 	g.Go(func() error {
 		logger.Println("starting event loop")
@@ -76,6 +96,7 @@ func main() {
 	<-ctx.Done()
 	logger.Println("context cancelled")
 	cleanupEventLoop()
+	cleanupSwitcher()
 	cleanupWatcher()
 	if err := g.Wait(); err != nil {
 		logger.Fatalf("error in errgroup: %+v", err)
