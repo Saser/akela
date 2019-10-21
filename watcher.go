@@ -1,10 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/BurntSushi/xgb/xproto"
 	"github.com/BurntSushi/xgbutil"
+	"github.com/BurntSushi/xgbutil/ewmh"
 	"github.com/BurntSushi/xgbutil/xevent"
 	"github.com/BurntSushi/xgbutil/xwindow"
 )
@@ -80,6 +82,15 @@ func (w *Watcher) Start() error {
 		w.logger.Println("detached all callbacks on root window")
 	}()
 	w.logger.Println("added callbacks for CreateNotify and DestroyNotify events on root window")
+
+	// Make sure all currently existing windows are watched as well.
+	windows, err := ewmh.ClientListGet(w.xu)
+	if err != nil {
+		return fmt.Errorf("watcher: %w", err)
+	}
+	for _, window := range windows {
+		w.watch(window)
+	}
 
 	<-w.done
 	w.logger.Println("received done signal")
