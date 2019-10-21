@@ -4,10 +4,13 @@ import (
 	"log"
 
 	"github.com/BurntSushi/xgb/xproto"
+	"github.com/BurntSushi/xgbutil"
+	"github.com/BurntSushi/xgbutil/icccm"
 )
 
 type Switcher struct {
 	logger *log.Logger
+	xu     *xgbutil.XUtil
 
 	focused <-chan xproto.Window
 
@@ -16,10 +19,12 @@ type Switcher struct {
 
 func NewSwitcher(
 	logger *log.Logger,
+	xu *xgbutil.XUtil,
 	focused <-chan xproto.Window,
 ) *Switcher {
 	return &Switcher{
 		logger: logger,
+		xu:     xu,
 
 		focused: focused,
 
@@ -33,7 +38,13 @@ loop:
 	for {
 		select {
 		case window := <-s.focused:
-			s.logger.Printf("received focus on window %d", window)
+			s.logger.Printf("getting class of window %d", window)
+			wmClass, err := icccm.WmClassGet(s.xu, window)
+			if err != nil {
+				s.logger.Printf("getting class of window %d failed: %+v", err)
+				continue
+			}
+			s.logger.Printf("got class of window %d: %+v", window, wmClass)
 		case <-s.done:
 			s.logger.Println("received done signal")
 			break loop
