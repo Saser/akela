@@ -13,6 +13,8 @@ type Watcher struct {
 	logger *log.Logger
 	xu     *xgbutil.XUtil
 
+	focused chan xproto.Window
+
 	done chan struct{}
 }
 
@@ -29,7 +31,14 @@ func NewWatcher(
 }
 
 func (w *Watcher) focusInFun(xu *xgbutil.XUtil, e xevent.FocusInEvent) {
-	w.logger.Printf("FocusIn: %+v", e)
+	window := e.Event
+	w.logger.Printf("sending focus on window %d", window)
+	select {
+	case w.focused <- window:
+		w.logger.Printf("sent focus on window %d", window)
+	default:
+		w.logger.Printf("dropped focus on window %d", window)
+	}
 }
 
 func (w *Watcher) watch(window xproto.Window) {
@@ -44,6 +53,10 @@ func (w *Watcher) unwatch(window xproto.Window) {
 	xwindow.New(w.xu, window).Listen(xproto.EventMaskNoEvent)
 	xevent.Detach(w.xu, window)
 	w.logger.Printf("detached all callbacks on window %d", window)
+}
+
+func (w *Watcher) Focused() <-chan xproto.Window {
+	return w.focused
 }
 
 func (w *Watcher) Start() error {
