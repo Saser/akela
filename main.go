@@ -40,7 +40,7 @@ func main() {
 
 	// Create a `Switcher`.
 	logger.Println("creating switcher")
-	switcher := NewSwitcher(logger, watcher.Focused())
+	switcher := NewSwitcher(logger, xu, watcher.Focused())
 	logger.Println("created switcher")
 
 	// Set up an errgroup with a derived context that is cancelled when an
