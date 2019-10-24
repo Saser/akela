@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"os"
 	"os/signal"
@@ -9,6 +10,10 @@ import (
 	"github.com/BurntSushi/xgbutil"
 	"github.com/BurntSushi/xgbutil/xevent"
 	"golang.org/x/sync/errgroup"
+)
+
+var (
+	configPath = flag.String("config", "", "path to configuration file")
 )
 
 func withCancelOnInterrupt(ctx context.Context) (context.Context, context.CancelFunc) {
@@ -24,6 +29,22 @@ func withCancelOnInterrupt(ctx context.Context) (context.Context, context.Cancel
 
 func main() {
 	logger := log.New(os.Stderr, "", log.Ldate|log.Ltime|log.Lshortfile)
+
+	flag.Parse()
+	if *configPath == "" {
+		logger.Fatalf("no configuration file given, exiting")
+	}
+
+	logger.Printf("parsing configuration file at %s", *configPath)
+	configFile, err := os.Open(*configPath)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	config, err := ParseConfig(configFile)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	logger.Printf("parsed configuration file: %+v", config)
 
 	// Set up a connection to the X server.
 	logger.Println("setting up connection to X server")
