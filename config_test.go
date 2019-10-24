@@ -27,3 +27,23 @@ func TestSpec_Validate(t *testing.T) {
 		})
 	}
 }
+
+func TestConfig_Validate(t *testing.T) {
+	for _, tt := range []struct {
+		config    Config
+		shouldErr bool
+	}{
+		{config: Config{Default: Spec{Layout: "default"}}, shouldErr: false},
+		{config: Config{Default: Spec{Layout: ""}}, shouldErr: true},
+	} {
+		tt := tt
+		t.Run(fmt.Sprintf("config=%+v", tt.config), func(t *testing.T) {
+			err := tt.config.Validate()
+			if tt.shouldErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
