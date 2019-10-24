@@ -1,0 +1,10 @@
+{
+    "default": {
+        "layout": "default"
+    },
+    "classes": {
+        "class1": {
+            "layout": ""
+        }
+    }
+}

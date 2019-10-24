@@ -1,8 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"io/ioutil"
 )
 
 type Spec struct {
@@ -19,6 +22,21 @@ func (s *Spec) Validate() error {
 type Config struct {
 	Default Spec
 	Classes map[string]Spec
+}
+
+func ParseConfig(r io.Reader) (*Config, error) {
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		return nil, fmt.Errorf("parse config: %w", err)
+	}
+	var config Config
+	if err := json.Unmarshal(data, &config); err != nil {
+		return nil, fmt.Errorf("parse config: %w", err)
+	}
+	if err := config.Validate(); err != nil {
+		return nil, fmt.Errorf("parse config: %w", err)
+	}
+	return &config, nil
 }
 
 func (c *Config) Validate() error {

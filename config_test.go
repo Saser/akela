@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -19,6 +20,35 @@ func TestSpec_Validate(t *testing.T) {
 		tt := tt
 		t.Run(fmt.Sprintf("spec=%+v", tt.spec), func(t *testing.T) {
 			err := tt.spec.Validate()
+			if tt.shouldErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestParseConfig(t *testing.T) {
+	for _, tt := range []struct {
+		path      string
+		shouldErr bool
+	}{
+		// Valid configs.
+		{path: "testdata/valid/onlydefault.json", shouldErr: false},
+		{path: "testdata/valid/defaultandclass.json", shouldErr: false},
+		// Invalid configs.
+		{path: "testdata/invalid/classempty.json", shouldErr: true},
+		{path: "testdata/invalid/classlayoutempty.json", shouldErr: true},
+		{path: "testdata/invalid/defaultempty.json", shouldErr: true},
+		{path: "testdata/invalid/defaultlayoutempty.json", shouldErr: true},
+		{path: "testdata/invalid/empty.json", shouldErr: true},
+	} {
+		tt := tt
+		t.Run(fmt.Sprintf("path=%v", tt.path), func(t *testing.T) {
+			file, err := os.Open(tt.path)
+			require.NoError(t, err)
+			_, err = ParseConfig(file)
 			if tt.shouldErr {
 				require.Error(t, err)
 			} else {
