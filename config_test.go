@@ -35,6 +35,42 @@ func TestConfig_Validate(t *testing.T) {
 	}{
 		{config: Config{Default: Spec{Layout: "default"}}, shouldErr: false},
 		{config: Config{Default: Spec{Layout: ""}}, shouldErr: true},
+		{
+			config: Config{
+				Default: Spec{Layout: "default"},
+				Classes: map[string]Spec{
+					"class": Spec{Layout: "layout"},
+				},
+			},
+			shouldErr: false,
+		},
+		{
+			config: Config{
+				Default: Spec{Layout: ""},
+				Classes: map[string]Spec{
+					"class": Spec{Layout: "layout"},
+				},
+			},
+			shouldErr: true,
+		},
+		{
+			config: Config{
+				Default: Spec{Layout: "default"},
+				Classes: map[string]Spec{
+					"class": Spec{Layout: ""},
+				},
+			},
+			shouldErr: true,
+		},
+		{
+			config: Config{
+				Default: Spec{Layout: "default"},
+				Classes: map[string]Spec{
+					"": Spec{Layout: "layout"},
+				},
+			},
+			shouldErr: true,
+		},
 	} {
 		tt := tt
 		t.Run(fmt.Sprintf("config=%+v", tt.config), func(t *testing.T) {
