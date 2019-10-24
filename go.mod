@@ -1,4 +1,4 @@
-module github.com/Saser/akela
+module github.com/Saser/aukela
 
 go 1.13
 
