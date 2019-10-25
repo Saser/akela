@@ -48,6 +48,12 @@ loop:
 				continue
 			}
 			s.logger.Printf("got class of window %d: %+v", window, wmClass)
+			class := wmClass.Class
+			if spec, ok := s.config.Classes[class]; ok {
+				s.logger.Printf(`found spec for class "%s": %+v`, class, spec)
+			} else {
+				s.logger.Printf(`no spec for class "%s", using default spec`, class)
+			}
 		case <-s.done:
 			s.logger.Println("received done signal")
 			break loop
