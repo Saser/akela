@@ -11,6 +11,7 @@ import (
 type Switcher struct {
 	logger *log.Logger
 	xu     *xgbutil.XUtil
+	config *Config
 
 	focused <-chan xproto.Window
 
@@ -20,11 +21,13 @@ type Switcher struct {
 func NewSwitcher(
 	logger *log.Logger,
 	xu *xgbutil.XUtil,
+	config *Config,
 	focused <-chan xproto.Window,
 ) *Switcher {
 	return &Switcher{
 		logger: logger,
 		xu:     xu,
+		config: config,
 
 		focused: focused,
 

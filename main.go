@@ -44,7 +44,7 @@ func main() {
 	if err != nil {
 		logger.Fatal(err)
 	}
-	logger.Printf("parsed configuration file: %+v", config)
+	logger.Printf("parsed configuration file at %s", *configPath)
 
 	// Set up a connection to the X server.
 	logger.Println("setting up connection to X server")
@@ -61,7 +61,7 @@ func main() {
 
 	// Create a `Switcher`.
 	logger.Println("creating switcher")
-	switcher := NewSwitcher(logger, xu, watcher.Focused())
+	switcher := NewSwitcher(logger, xu, config, watcher.Focused())
 	logger.Println("created switcher")
 
 	// Set up an errgroup with a derived context that is cancelled when an
