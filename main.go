@@ -10,6 +10,7 @@ import (
 	"github.com/BurntSushi/xgbutil"
 	"github.com/BurntSushi/xgbutil/xevent"
 	"github.com/Saser/aukela/config"
+	"github.com/Saser/aukela/switcher"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -62,7 +63,7 @@ func main() {
 
 	// Create a `Switcher`.
 	logger.Println("creating switcher")
-	switcher := NewSwitcher(logger, xu, config, watcher.Focused())
+	switcher := switcher.New(logger, xu, config, watcher.Focused())
 	logger.Println("created switcher")
 
 	// Set up an errgroup with a derived context that is cancelled when an

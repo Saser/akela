@@ -1,4 +1,4 @@
-package main
+package switcher
 
 import (
 	"log"
@@ -19,7 +19,7 @@ type Switcher struct {
 	done chan struct{}
 }
 
-func NewSwitcher(
+func New(
 	logger *log.Logger,
 	xu *xgbutil.XUtil,
 	config *config.Config,
