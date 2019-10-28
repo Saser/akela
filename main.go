@@ -11,6 +11,7 @@ import (
 	"github.com/BurntSushi/xgbutil/xevent"
 	"github.com/Saser/aukela/config"
 	"github.com/Saser/aukela/switcher"
+	"github.com/Saser/aukela/watcher"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -58,7 +59,7 @@ func main() {
 
 	// Create a `Watcher`.
 	logger.Println("creating watcher")
-	watcher := NewWatcher(logger, xu)
+	watcher := watcher.New(logger, xu)
 	logger.Println("created watcher")
 
 	// Create a `Switcher`.

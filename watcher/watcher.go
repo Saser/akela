@@ -1,4 +1,4 @@
-package main
+package watcher
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ type Watcher struct {
 	done chan struct{}
 }
 
-func NewWatcher(
+func New(
 	logger *log.Logger,
 	xu *xgbutil.XUtil,
 ) *Watcher {
