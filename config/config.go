@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"encoding/json"
@@ -24,7 +24,7 @@ type Config struct {
 	Classes map[string]Spec
 }
 
-func ParseConfig(r io.Reader) (*Config, error) {
+func Parse(r io.Reader) (*Config, error) {
 	data, err := ioutil.ReadAll(r)
 	if err != nil {
 		return nil, fmt.Errorf("parse config: %w", err)

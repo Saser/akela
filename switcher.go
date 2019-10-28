@@ -6,12 +6,13 @@ import (
 	"github.com/BurntSushi/xgb/xproto"
 	"github.com/BurntSushi/xgbutil"
 	"github.com/BurntSushi/xgbutil/icccm"
+	"github.com/Saser/aukela/config"
 )
 
 type Switcher struct {
 	logger *log.Logger
 	xu     *xgbutil.XUtil
-	config *Config
+	config *config.Config
 
 	focused <-chan xproto.Window
 
@@ -21,7 +22,7 @@ type Switcher struct {
 func NewSwitcher(
 	logger *log.Logger,
 	xu *xgbutil.XUtil,
-	config *Config,
+	config *config.Config,
 	focused <-chan xproto.Window,
 ) *Switcher {
 	return &Switcher{

@@ -9,6 +9,7 @@ import (
 
 	"github.com/BurntSushi/xgbutil"
 	"github.com/BurntSushi/xgbutil/xevent"
+	"github.com/Saser/aukela/config"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -40,7 +41,7 @@ func main() {
 	if err != nil {
 		logger.Fatal(err)
 	}
-	config, err := ParseConfig(configFile)
+	config, err := config.Parse(configFile)
 	if err != nil {
 		logger.Fatal(err)
 	}
